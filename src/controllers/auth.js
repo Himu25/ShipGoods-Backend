@@ -4,40 +4,18 @@ import User from "../models/User.js";
 import Driver from "../models/Driver.js";
 
 export const signup = async (req, res) => {
-  const { name, email, password, role, licenseNumber, preferredVehicleType } =
-    req.body;
+  const { name, email, password, role } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
-
-    let driverId = null;
-
-    if (role === "driver") {
-      const driver = new Driver({
-        licenseNumber,
-        preferredVehicleType,
-      });
-      await driver.save();
-      driverId = driver._id;
-    }
-
-    const user = new User({ name, email, password, role, driverId });
+    const user = new User({ name, email, password, role });
     await user.save();
-
-    const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
 
     res.status(201).json({
       message: "User created successfully",
-      token,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
@@ -62,13 +40,14 @@ export const login = async (req, res) => {
       { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: "14h",
       }
     );
 
     res.status(200).json({
       message: "Login successful",
       token,
+      id: user.role === "driver" ? user.driverId : user._id,
       name: user.name,
       role: user.role,
     });
@@ -128,8 +107,7 @@ export const getUserById = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { name, email, password, role, licenseNumber, preferredVehicleType } =
-    req.body;
+  const { name, email, password, role, licenseNumber } = req.body;
 
   try {
     const user = await User.findById(id);
@@ -150,8 +128,7 @@ export const updateUser = async (req, res) => {
       const driver = await Driver.findById(user.driverId);
       if (driver) {
         driver.licenseNumber = licenseNumber || driver.licenseNumber;
-        driver.preferredVehicleType =
-          preferredVehicleType || driver.preferredVehicleType;
+        driver.name = name;
         await driver.save();
       }
     }

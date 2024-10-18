@@ -1,19 +1,18 @@
 import mongoose from "mongoose";
 
 const driverSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
   licenseNumber: {
     type: String,
     required: true,
     trim: true,
   },
-  preferredVehicleType: {
-    type: [String],
-    required: true,
-    trim: true,
-  },
   isAvailable: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   currentLocation: {
     type: {
@@ -23,8 +22,13 @@ const driverSchema = new mongoose.Schema({
     },
     coordinates: {
       type: [Number],
-      default: [9999, 9999],
+      default: [0, 0],
     },
+  },
+  adminId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
   vehicleId: {
     type: mongoose.Schema.Types.ObjectId,

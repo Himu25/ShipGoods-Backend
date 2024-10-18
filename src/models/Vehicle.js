@@ -18,20 +18,14 @@ const vehicleSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    currentLocation: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        required: true,
-      },
-      coordinates: {
-        type: [Number],
-        required: true,
-      },
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Driver",
     },
     imageUrl: {
       type: String,
@@ -43,8 +37,6 @@ const vehicleSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-vehicleSchema.index({ currentLocation: "2dsphere" });
 
 const Vehicle = mongoose.model("Vehicle", vehicleSchema);
 export default Vehicle;

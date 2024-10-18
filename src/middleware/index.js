@@ -5,6 +5,7 @@ const authenticateToken = (req, res, next) => {
   if (!token) {
     return res.sendStatus(401);
   }
+  console.log(token);
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
@@ -15,4 +16,13 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-export default authenticateToken;
+const authorizeRole = (requiredRole) => {
+  return (req, res, next) => {
+    if (!req.user || req.user.role !== requiredRole) {
+      return res.sendStatus(403);
+    }
+    next();
+  };
+};
+
+export { authenticateToken, authorizeRole };
